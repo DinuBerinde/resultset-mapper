@@ -11,9 +11,13 @@ mapped to the field annotated with ```@MappedLabel()``` of the POJO.
 // map result set to object
 User user = ResultSetMapper.toObject(resultSet, User.class);
 
-
 // map result set to a list of objects
 List<User> users = ResultSetMapper.toList(resultSet, User.class);
+
+// apply the current row of the result set to an object
+while(resultSet.next()) {
+    users.add(ResultSetMapper.apply(resultSet, User.class));
+}
 
 ```
 
@@ -21,6 +25,9 @@ List<User> users = ResultSetMapper.toList(resultSet, User.class);
 
 ```java
 import com.dinuberinde.MapperLabel;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 
 // POJO
@@ -41,20 +48,21 @@ public class User {
 // Usage
 public class DBHelper {
     ...
+
     public User getUser(Long id) {
         try (Statement stmt = getDBConnection().createStatement()) {
-            
+
             // query
             String sql = "SELECT * FROM USERS WHERE ID = " + id;
             ResultSet resultSet = stmt.executeQuery(sql);
 
             // map result set to a user
             User user = ResultSetMapper.toObject(resultSet, User.class);
-            
+
             return user;
         }
     }
-    
+
     public List<User> getUsers() {
         try (Statement stmt = getDBConnection().createStatement()) {
 
@@ -68,6 +76,24 @@ public class DBHelper {
             return users;
         }
     }
+
+    public List<User> getUsersWithApply() {
+        try (Statement stmt = getDBConnection().createStatement()) {
+
+            // query
+            String sql = "SELECT * FROM USERS";
+            ResultSet resultSet = stmt.executeQuery(sql);
+
+            List<User> users = new ArrayList<>();
+            while (resultSet.next()) {
+                // apply the current row of the result set to an object
+                users.add(ResultSetMapper.apply(resultSet, User.class));
+            }
+
+            return users;
+        }
+    }
+
 }
 ```
 

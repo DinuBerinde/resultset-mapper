@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,6 +65,47 @@ class ResultSetMapperTest {
             ResultSet resultSet = stmt.executeQuery(sql);
 
             users = ResultSetMapper.toList(resultSet, User.class);
+        }
+
+        assertNotNull(users);
+        assertEquals(5, users.size());
+
+        users.forEach(user -> {
+            assertNotNull(user.getBirthDate());
+            assertNotNull(user.getName());
+            assertNotNull(user.getSurname());
+            assertNotNull(user.getId());
+        });
+
+        User mike = users.get(1);
+        assertEquals("Mike", mike.getName());
+        assertEquals("Donald", mike.getSurname());
+        assertEquals(2L, mike.getId());
+        assertEquals(true, mike.isMale());
+        assertEquals(LocalDate.of(1993, 9, 27).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), mike.getBirthDate().toString());
+
+        User doris = users.get(4);
+        assertEquals("Doris", doris.getName());
+        assertEquals("Smith", doris.getSurname());
+        assertEquals(5L, doris.getId());
+        assertEquals(false, doris.isMale());
+        assertEquals(LocalDate.of(1999, 9, 9).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), doris.getBirthDate().toString());
+    }
+
+
+    @Test
+    void isShouldMapAListOfUsersByUsingApply() throws SQLException {
+        List<User> users = new ArrayList<>();
+
+        try (Statement stmt = dbHelper.getConnection().createStatement()) {
+            System.out.println("Query for users...");
+
+            String sql = "SELECT * FROM USERS";
+            ResultSet resultSet = stmt.executeQuery(sql);
+
+            while(resultSet.next()) {
+                users.add(ResultSetMapper.apply(resultSet, User.class));
+            }
         }
 
         assertNotNull(users);

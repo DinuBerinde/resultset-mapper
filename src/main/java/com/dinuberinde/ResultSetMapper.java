@@ -2,6 +2,7 @@ package com.dinuberinde;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,7 +14,30 @@ public class ResultSetMapper {
     private ResultSetMapper() {}
 
     /**
-     * It maps a result set to a single object.
+     * It maps the current row of the result set to an object.
+     * @param resultSet the result set
+     * @param type the type of the resulting object
+     * @return the object mapped
+     */
+    public static <T> T apply(ResultSet resultSet, Class<T> type) {
+
+        if (resultSet == null) {
+            throw new ResultSetMapperException("ResultSet cannot be null");
+        }
+
+        if (type == null) {
+            throw new ResultSetMapperException("Type cannot be null");
+        }
+
+        try {
+            return buildDTO(type, resultSet);
+        } catch (Exception e) {
+            throw new ResultSetMapperException(e);
+        }
+    }
+
+    /**
+     * It maps a result set to a single object by iterating over the result set.
      * @param resultSet the result set
      * @param type the type of the resulting object
      * @return the object mapped
@@ -24,12 +48,13 @@ public class ResultSetMapper {
     }
 
     /**
-     * It maps a result set to a list of objects.
+     * It maps a result set to a list of objects by iterating over the result set.
      * @param resultSet the result set
      * @param type the type of the objects
      * @return a list of mapped objects
      */
     public static <T> List<T> toList(ResultSet resultSet, Class<T> type) {
+
         if (resultSet == null) {
             throw new ResultSetMapperException("ResultSet cannot be null");
         }
@@ -42,26 +67,31 @@ public class ResultSetMapper {
             List<T> dtoList = new ArrayList<>();
 
             while (resultSet.next()) {
-                T dto = type.getDeclaredConstructor().newInstance();
-                Field[] fields = type.getDeclaredFields();
-
-                for (Field field: fields) {
-                    MapperLabel annotation = field.getAnnotation(MapperLabel.class);
-                    if (annotation != null) {
-                        String columnName = annotation.name();
-                        Class<?> fieldType = field.getType();
-                        field.setAccessible(true);
-                        field.set(dto, getValue(fieldType, resultSet, columnName));
-                    }
-                }
-
+                T dto = buildDTO(type, resultSet);
                 dtoList.add(dto);
             }
 
             return dtoList;
         } catch (Exception e) {
-            throw new ResultSetMapperException(e.getMessage());
+            throw new ResultSetMapperException(e);
         }
+    }
+
+    private static <T> T buildDTO(Class<T> type, ResultSet resultSet) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
+        T dto = type.getDeclaredConstructor().newInstance();
+        Field[] fields = type.getDeclaredFields();
+
+        for (Field field: fields) {
+            MapperLabel annotation = field.getAnnotation(MapperLabel.class);
+            if (annotation != null) {
+                String columnName = annotation.name();
+                Class<?> fieldType = field.getType();
+                field.setAccessible(true);
+                field.set(dto, getValue(fieldType, resultSet, columnName));
+            }
+        }
+
+        return dto;
     }
 
     private static Object getValue(Class<?> fieldType, ResultSet resultSet, String columnName) throws SQLException {
