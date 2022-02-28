@@ -103,7 +103,7 @@ public class DBHelper {
 <dependency>
     <groupId>com.dinuberinde</groupId>
     <artifactId>resultset-mapper</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 </dependency>
 ```
 
