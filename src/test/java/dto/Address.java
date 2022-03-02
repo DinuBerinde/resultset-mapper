@@ -16,4 +16,7 @@ public class Address extends BaseAddress {
 
     @MapperLabel(name = "USER_ID")
     private Long userID;
+
+    @MapperLabel(name = "NOT_EXISTING_COLUMN", optional = true)
+    private Long notExistingColumn;
 }
