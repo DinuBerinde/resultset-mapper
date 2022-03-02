@@ -14,6 +14,7 @@ import java.util.List;
  * The goal of this library is to map a Java {@link java.sql.ResultSet} to a POJO class.
  * <p>Example:</p>
  * <pre class="code">
+ *
  *public class User {
  *
  *  &#064;MapperLabel(name = "ID")

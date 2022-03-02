@@ -6,7 +6,7 @@
 
     <groupId>com.dinuberinde</groupId>
     <artifactId>resultset-mapper</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <name>resultset-mapper</name>
     <description>The goal of this library is to map a Java java.sql.ResultSet to a POJO class.</description>
@@ -115,6 +115,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <additionalOptions>
+                        <additionalOption>-Xdoclint:none</additionalOption>
+                    </additionalOptions>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
