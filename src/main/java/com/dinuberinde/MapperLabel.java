@@ -41,4 +41,9 @@ public @interface MapperLabel {
      * The name of the database column.
      */
     String name();
+
+    /**
+     * Set to true if the column may not exist in order to prevent a {@link java.sql.SQLException}.
+     */
+    boolean optional() default false;
 }

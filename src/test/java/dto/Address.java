@@ -4,15 +4,9 @@ import com.dinuberinde.MapperLabel;
 import lombok.Data;
 
 @Data
-public class Address {
+public class Address extends BaseAddress {
     @MapperLabel(name = "ID")
     private Long ID;
-
-    @MapperLabel(name = "NATION")
-    private String nation;
-
-    @MapperLabel(name = "CITY")
-    private String city;
 
     @MapperLabel(name = "STREET")
     private String street;

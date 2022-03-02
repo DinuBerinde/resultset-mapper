@@ -6,9 +6,45 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The goal of this library is to map a Java {@link java.sql.ResultSet} to a POJO class.
+ * <p>Example:</p>
+ * <pre class="code">
+ *public class User {
+ *
+ *  &#064;MapperLabel(name = "ID")
+ *  private Long id;
+ *
+ *  &#064;MapperLabel(name = "NAME")
+ *  private String name;
+ *
+ *  &#064;MapperLabel(name = "BIRTHDATE")
+ *  private Date birthDate;
+ *
+ *  // getters and setters or Lombok
+ * }
+ *</pre>
+ *
+ * <p>Usage:</p>
+ * <pre class="code">
+ *
+ *  // map result set to a user
+ *  ResultSetMapper.toObject(resultSet, User.class);
+ *
+ *  // or map result set to a list of users
+ *  List<User> users = ResultSetMapper.toList(resultSet, User.class);
+ *
+ *  // or apply the current row of the result set to an object
+ *  List<User> users = new ArrayList<>();
+ *  while(resultSet.next()) {
+ *      users.add(ResultSetMapper.apply(resultSet, User.class));
+ *  }
+ * </pre>
+ */
 public class ResultSetMapper {
 
     private ResultSetMapper() {}
@@ -79,19 +115,37 @@ public class ResultSetMapper {
 
     private static <T> T buildDTO(Class<T> type, ResultSet resultSet) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
         T dto = type.getDeclaredConstructor().newInstance();
-        Field[] fields = type.getDeclaredFields();
+        List<Field> fields = getAllFields(type);
 
         for (Field field: fields) {
             MapperLabel annotation = field.getAnnotation(MapperLabel.class);
             if (annotation != null) {
                 String columnName = annotation.name();
                 Class<?> fieldType = field.getType();
+                Object value = annotation.optional() ? safelyGetValue(fieldType, resultSet, columnName) : getValue(fieldType, resultSet, columnName);
+
                 field.setAccessible(true);
-                field.set(dto, getValue(fieldType, resultSet, columnName));
+                field.set(dto, value);
             }
         }
 
         return dto;
+    }
+
+    private static List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+        for (Class<?> clazz = type; clazz != null; clazz = clazz.getSuperclass()) {
+            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+        }
+        return fields;
+    }
+
+    private static Object safelyGetValue(Class<?> fieldType, ResultSet resultSet, String columnName) {
+        try {
+            return getValue(fieldType, resultSet, columnName);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     private static Object getValue(Class<?> fieldType, ResultSet resultSet, String columnName) throws SQLException {
