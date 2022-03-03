@@ -24,6 +24,7 @@ while(resultSet.next()) {
 ## Features
 - Result set mapping to POJO 
 - Date formatting 
+- Decimal number formatting
 - Optional mapping of column 
 
 ## Full example
@@ -41,12 +42,20 @@ public class User {
     @MapperLabel(name = "ID")
     private Long id;
 
-    @MapperLabel(name = "ID")
+    @MapperLabel(name = "NAME")
     private String name;
 
-    @MapperLabel(name = "ID")
+    @MapperLabel(name = "BIRTHDATE")
     private Date birthDate;
 
+    @MapperDateFormatter()
+    @MapperLabel(name = "BIRTHDATE2")
+    private String birthDateString;
+
+    @MapperDecimalFormatter(pattern = "#.00#")
+    @MapperLabel(name = "HEIGHT")
+    private String height;
+    
     // getters and setter or Lombok
 }
 
