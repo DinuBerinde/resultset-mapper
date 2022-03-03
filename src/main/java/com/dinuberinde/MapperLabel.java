@@ -46,4 +46,15 @@ public @interface MapperLabel {
      * Set to true if the column may not exist in order to prevent a {@link java.sql.SQLException}.
      */
     boolean optional() default false;
+
+    /**
+     * Set to true if the column is a date and you want to map it to a Java string field
+     * using the dateFormat property.
+     */
+    boolean dateToString() default false;
+
+    /**
+     * The date format used to map a date column to a Java string field.
+     */
+    String dateFormat() default "dd/MM/yyyy";
 }

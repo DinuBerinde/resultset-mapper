@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -121,9 +122,8 @@ public class ResultSetMapper {
         for (Field field: fields) {
             MapperLabel annotation = field.getAnnotation(MapperLabel.class);
             if (annotation != null) {
-                String columnName = annotation.name();
                 Class<?> fieldType = field.getType();
-                Object value = annotation.optional() ? safelyGetValue(fieldType, resultSet, columnName) : getValue(fieldType, resultSet, columnName);
+                Object value = annotation.optional() ? safelyGetValue(fieldType, resultSet, annotation) : getValue(fieldType, resultSet, annotation);
 
                 field.setAccessible(true);
                 field.set(dto, value);
@@ -141,17 +141,21 @@ public class ResultSetMapper {
         return fields;
     }
 
-    private static Object safelyGetValue(Class<?> fieldType, ResultSet resultSet, String columnName) {
+    private static Object safelyGetValue(Class<?> fieldType, ResultSet resultSet, MapperLabel annotation) {
         try {
-            return getValue(fieldType, resultSet, columnName);
+            return getValue(fieldType, resultSet, annotation);
         } catch (SQLException e) {
             return null;
         }
     }
 
-    private static Object getValue(Class<?> fieldType, ResultSet resultSet, String columnName) throws SQLException {
+    private static Object getValue(Class<?> fieldType, ResultSet resultSet, MapperLabel annotation) throws SQLException {
+        String columnName = annotation.name();
 
         if (fieldType == String.class) {
+            if (annotation.dateToString()) {
+                return resultSet.getDate(columnName).toLocalDate().format(DateTimeFormatter.ofPattern(annotation.dateFormat()));
+            }
             return resultSet.getString(columnName);
         } else if (fieldType == Long.class || fieldType == long.class) {
             return resultSet.getLong(columnName);

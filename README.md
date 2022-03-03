@@ -21,6 +21,11 @@ while(resultSet.next()) {
 
 ```
 
+## Features
+- Result set mapping to POJO 
+- Date formatting 
+- Optional mapping of column 
+
 ## Full example
 
 ```java
