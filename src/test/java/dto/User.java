@@ -1,5 +1,7 @@
 package dto;
 
+import com.dinuberinde.MapperDateFormatter;
+import com.dinuberinde.MapperDecimalFormatter;
 import com.dinuberinde.MapperLabel;
 import lombok.Data;
 
@@ -19,9 +21,14 @@ public class User {
     @MapperLabel(name = "BIRTHDATE")
     private Date birthDate;
 
-    @MapperLabel(name = "BIRTHDATE2", dateToString = true)
+    @MapperDateFormatter()
+    @MapperLabel(name = "BIRTHDATE2")
     private String birthDateString;
 
     @MapperLabel(name = "MALE")
     private boolean male;
+
+    @MapperDecimalFormatter(pattern = "#.00#")
+    @MapperLabel(name = "HEIGHT")
+    private String height;
 }

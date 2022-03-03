@@ -30,6 +30,7 @@ public class DBHelper implements AutoCloseable {
                     " BIRTHDATE DATE, " +
                     " BIRTHDATE2 DATE, " +
                     " MALE BOOLEAN default false, " +
+                    " HEIGHT DECIMAL(3,2), " +
                     " PRIMARY KEY (ID));";
 
             String addressTable = "CREATE TABLE ADDRESS" +
@@ -55,11 +56,11 @@ public class DBHelper implements AutoCloseable {
         System.out.println("Inserting data...");
 
         try (Statement stmt = conn.createStatement()) {
-            String user1 = "INSERT INTO USERS VALUES(1, 'John', 'Doe', {ts '2000-09-17 18:47:52.69'}, {ts '2000-09-17 18:47:52.69'}, true);";
-            String user2 = "INSERT INTO USERS VALUES(2, 'Mike', 'Donald', {ts '1993-09-27 18:47:52.69'}, {ts '1993-09-27 18:47:52.69'}, true);";
-            String user3 = "INSERT INTO USERS VALUES(3, 'Jake', 'Johnson', {ts '1990-02-07 18:47:52.69'}, {ts '1990-02-07 18:47:52.69'}, true);";
-            String user4 = "INSERT INTO USERS VALUES(4, 'Alice', 'Williams', {ts '2000-10-17 18:47:52.69'}, {ts '2000-10-17 18:47:52.69'}, false);";
-            String user5 = "INSERT INTO USERS VALUES(5, 'Doris', 'Smith', {ts '1999-09-09 18:47:52.69'}, {ts '1999-09-09 18:47:52.69'}, false);";
+            String user1 = "INSERT INTO USERS VALUES(1, 'John', 'Doe', {ts '2000-09-17 18:47:52.69'}, {ts '2000-09-17 18:47:52.69'}, true, 1.92);";
+            String user2 = "INSERT INTO USERS VALUES(2, 'Mike', 'Donald', {ts '1993-09-27 18:47:52.69'}, {ts '1993-09-27 18:47:52.69'}, true, 1.80);";
+            String user3 = "INSERT INTO USERS VALUES(3, 'Jake', 'Johnson', {ts '1990-02-07 18:47:52.69'}, {ts '1990-02-07 18:47:52.69'}, true, 1.88);";
+            String user4 = "INSERT INTO USERS VALUES(4, 'Alice', 'Williams', {ts '2000-10-17 18:47:52.69'}, {ts '2000-10-17 18:47:52.69'}, false, 1.70);";
+            String user5 = "INSERT INTO USERS VALUES(5, 'Doris', 'Smith', {ts '1999-09-09 18:47:52.69'}, {ts '1999-09-09 18:47:52.69'}, false, 1.77);";
 
             String address1 = "INSERT INTO ADDRESS VALUES(1, 'SUA', 'Chicago', 'Bakery', 1, 1);";
             String address2 = "INSERT INTO ADDRESS VALUES(2, 'SUA', 'New York', 'W 14th', 10, 2);";

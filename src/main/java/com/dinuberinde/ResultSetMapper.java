@@ -5,11 +5,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The goal of this library is to map a Java {@link java.sql.ResultSet} to a POJO class.
@@ -120,10 +122,13 @@ public class ResultSetMapper {
         List<Field> fields = getAllFields(type);
 
         for (Field field: fields) {
-            MapperLabel annotation = field.getAnnotation(MapperLabel.class);
-            if (annotation != null) {
+            MapperLabel label = field.getAnnotation(MapperLabel.class);
+            MapperDateFormatter dateFormatter = field.getAnnotation(MapperDateFormatter.class);
+            MapperDecimalFormatter decimalFormatter = field.getAnnotation(MapperDecimalFormatter.class);
+
+            if (label != null) {
                 Class<?> fieldType = field.getType();
-                Object value = annotation.optional() ? safelyGetValue(fieldType, resultSet, annotation) : getValue(fieldType, resultSet, annotation);
+                Object value = label.optional() ? safelyGetValue(fieldType, resultSet, label, dateFormatter, decimalFormatter) : getValue(fieldType, resultSet, label, dateFormatter, decimalFormatter);
 
                 field.setAccessible(true);
                 field.set(dto, value);
@@ -141,38 +146,39 @@ public class ResultSetMapper {
         return fields;
     }
 
-    private static Object safelyGetValue(Class<?> fieldType, ResultSet resultSet, MapperLabel annotation) {
+    private static Object safelyGetValue(Class<?> fieldType, ResultSet resultSet, MapperLabel label, MapperDateFormatter dateFormatter, MapperDecimalFormatter decimalFormatter) {
         try {
-            return getValue(fieldType, resultSet, annotation);
+            return getValue(fieldType, resultSet, label, dateFormatter, decimalFormatter);
         } catch (SQLException e) {
             return null;
         }
     }
 
-    private static Object getValue(Class<?> fieldType, ResultSet resultSet, MapperLabel annotation) throws SQLException {
-        String columnName = annotation.name();
+    private static Object getValue(Class<?> fieldType, ResultSet resultSet, MapperLabel label, MapperDateFormatter dateFormatter, MapperDecimalFormatter decimalFormatter) throws SQLException {
+        String columnName = label.name();
+        Object numericValue = getNumericValue(fieldType, columnName, resultSet);
 
-        if (fieldType == String.class) {
-            if (annotation.dateToString()) {
-                return resultSet.getDate(columnName).toLocalDate().format(DateTimeFormatter.ofPattern(annotation.dateFormat()));
+        if (numericValue != null) {
+            return numericValue;
+        } else if (fieldType == String.class) {
+
+            if (dateFormatter != null) {
+                return resultSet.getDate(columnName).toLocalDate().format(DateTimeFormatter.ofPattern(dateFormatter.pattern()));
             }
+
+            if (decimalFormatter != null) {
+                return new DecimalFormat(decimalFormatter.pattern(),
+                        new DecimalFormatSymbols(new Locale(decimalFormatter.locale().toLowerCase(), decimalFormatter.locale().toUpperCase()))
+                ).format(getNumericValue(BigDecimal.class, columnName, resultSet));
+            }
+
             return resultSet.getString(columnName);
-        } else if (fieldType == Long.class || fieldType == long.class) {
-            return resultSet.getLong(columnName);
-        } else if (fieldType == Integer.class || fieldType == int.class) {
-            return resultSet.getInt(columnName);
-        } else if (fieldType == Float.class || fieldType == float.class) {
-            return resultSet.getFloat(columnName);
-        } else if (fieldType == Double.class || fieldType == double.class) {
-            return resultSet.getDouble(columnName);
         } else if (fieldType == Boolean.class || fieldType == boolean.class) {
             return resultSet.getBoolean(columnName);
-        } else if (fieldType == Date.class || fieldType == java.sql.Date.class) {
+        } else if (fieldType == java.util.Date.class || fieldType == java.sql.Date.class) {
             return resultSet.getDate(columnName);
         } else if (fieldType == Byte.class || fieldType == byte.class) {
             return resultSet.getByte(columnName);
-        } else if (fieldType == BigDecimal.class) {
-            return resultSet.getBigDecimal(columnName);
         } else if (fieldType == byte[].class) {
             return resultSet.getBytes(columnName);
         } else if (fieldType == Blob.class) {
@@ -189,6 +195,23 @@ public class ResultSetMapper {
             return resultSet.getArray(columnName);
         } else {
             throw new IllegalStateException("No suitable type was found for " + columnName);
+        }
+    }
+
+    private static Object getNumericValue(Class<?> fieldType, String columnName, ResultSet resultSet) throws SQLException {
+
+        if (fieldType == Long.class || fieldType == long.class) {
+            return resultSet.getLong(columnName);
+        } else if (fieldType == Integer.class || fieldType == int.class) {
+            return resultSet.getInt(columnName);
+        } else if (fieldType == Float.class || fieldType == float.class) {
+            return resultSet.getFloat(columnName);
+        } else if (fieldType == Double.class || fieldType == double.class) {
+            return resultSet.getDouble(columnName);
+        } else if (fieldType == BigDecimal.class) {
+            return resultSet.getBigDecimal(columnName);
+        } else  {
+            return null;
         }
     }
 }

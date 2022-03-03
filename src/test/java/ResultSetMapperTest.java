@@ -51,6 +51,7 @@ class ResultSetMapperTest {
         assertEquals("Doe", user.getSurname());
         assertEquals(1L, user.getId());
         assertEquals(true, user.isMale());
+        assertEquals("1.92", user.getHeight());
         assertEquals("17/09/2000", user.getBirthDateString());
         assertEquals(LocalDate.of(2000, 9, 17).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), user.getBirthDate().toString());
     }
@@ -77,6 +78,7 @@ class ResultSetMapperTest {
             assertNotNull(user.getSurname());
             assertNotNull(user.getId());
             assertNotNull(user.getBirthDateString());
+            assertNotNull(user.getHeight());
         });
 
         User mike = users.get(1);
@@ -84,6 +86,7 @@ class ResultSetMapperTest {
         assertEquals("Donald", mike.getSurname());
         assertEquals(2L, mike.getId());
         assertEquals(true, mike.isMale());
+        assertEquals("1.80", mike.getHeight());
         assertEquals("27/09/1993", mike.getBirthDateString());
         assertEquals(LocalDate.of(1993, 9, 27).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), mike.getBirthDate().toString());
 
@@ -92,6 +95,7 @@ class ResultSetMapperTest {
         assertEquals("Smith", doris.getSurname());
         assertEquals(5L, doris.getId());
         assertEquals(false, doris.isMale());
+        assertEquals("1.77", doris.getHeight());
         assertEquals("09/09/1999", doris.getBirthDateString());
         assertEquals(LocalDate.of(1999, 9, 9).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), doris.getBirthDate().toString());
     }
@@ -121,6 +125,7 @@ class ResultSetMapperTest {
             assertNotNull(user.getSurname());
             assertNotNull(user.getId());
             assertNotNull(user.getBirthDateString());
+            assertNotNull(user.getHeight());
         });
 
         User mike = users.get(1);
@@ -128,6 +133,7 @@ class ResultSetMapperTest {
         assertEquals("Donald", mike.getSurname());
         assertEquals(2L, mike.getId());
         assertEquals(true, mike.isMale());
+        assertEquals("1.80", mike.getHeight());
         assertEquals("27/09/1993", mike.getBirthDateString());
         assertEquals(LocalDate.of(1993, 9, 27).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), mike.getBirthDate().toString());
 
@@ -136,6 +142,7 @@ class ResultSetMapperTest {
         assertEquals("Smith", doris.getSurname());
         assertEquals(5L, doris.getId());
         assertEquals(false, doris.isMale());
+        assertEquals("1.77", doris.getHeight());
         assertEquals("09/09/1999", doris.getBirthDateString());
         assertEquals(LocalDate.of(1999, 9, 9).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), doris.getBirthDate().toString());
     }

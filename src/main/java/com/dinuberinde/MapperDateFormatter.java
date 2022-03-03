@@ -2,9 +2,9 @@ package com.dinuberinde;
 
 import java.lang.annotation.*;
 
-
 /**
- * Marks a field to be mapped.
+ * Annotation used to format a date column to a Java string field.
+ * The default date pattern is <strong>dd/MM/yyyy</strong>.
  * <br>
  *<p>Example:</p>
  *<pre class="code">
@@ -15,11 +15,9 @@ import java.lang.annotation.*;
  *  &#064;MapperLabel(name = "ID")
  *  private Long id;
  *
- *  &#064;MapperLabel(name = "NAME")
- *  private String name;
- *
+ *  &#064;MapperDateFormatter()
  *  &#064;MapperLabel(name = "BIRTHDATE")
- *  private Date birthDate;
+ *  private String birthDate;
  *
  *  // getters and setters or Lombok
  * }
@@ -29,20 +27,14 @@ import java.lang.annotation.*;
  * <pre class="code">
  *  ResultSetMapper.toObject(resultSet, User.class);
  * </pre>
- *
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface MapperLabel {
+public @interface MapperDateFormatter {
 
     /**
-     * The name of the database column.
+     * The date format pattern used to map a date column to a Java string field.
      */
-    String name();
-
-    /**
-     * Set to true if the column may not exist in order to prevent a {@link java.sql.SQLException}.
-     */
-    boolean optional() default false;
+    String pattern() default "dd/MM/yyyy";
 }
